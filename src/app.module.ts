@@ -13,6 +13,7 @@ import { UserModule } from './user/user.module';
       database: 'testdb',
       autoLoadModels: true,
       synchronize: true,
+      logging: false,
     }),
     UserModule,
   ],

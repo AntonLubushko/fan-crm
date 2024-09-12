@@ -1,20 +1,26 @@
-import { Body, Controller, Get, Param, Post, Headers } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('api/v1')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post('add-user')
-  createUser(
-    @Body() body: { name: string; email: string; phone: string },
-    @Headers('Authorization') auth: string,
-  ) {
-    return this.userService.createUser(auth, body.name, body.email, body.phone);
+  @UseGuards(JwtAuthGuard)
+  createUser(@Body() body: { name: string; email: string; phone: string }) {
+    return this.userService.createUser(body.name, body.email, body.phone);
   }
 
   @Get('get-user/:id')
-  getUser(@Param('id') id: string, @Headers('Authorization') auth: string) {
-    return this.userService.getUserById(auth, Number(id));
+  @UseGuards(JwtAuthGuard)
+  getUser(@Param('id') id: string) {
+    return this.userService.getUserById(Number(id));
+  }
+
+  @Get('get-users')
+  @UseGuards(JwtAuthGuard)
+  getAllUsers() {
+    return this.userService.getAllUsers();
   }
 }
