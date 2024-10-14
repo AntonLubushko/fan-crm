@@ -16,4 +16,8 @@ export class UserRepository {
   async getUserById(id: number): Promise<User> {
     return this.userModel.findByPk(id);
   }
+
+  async getAllUsers(): Promise<User[]> {
+    return this.userModel.findAll();
+  }
 }
