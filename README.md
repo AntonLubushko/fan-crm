@@ -29,32 +29,28 @@ $ npm run start:dev
 
 Then go to jwt.io and compose a token. Make sure, that in a payload
 you paste an "expire" field with date in seconds, that greater, than
-this date.
+current date.
 Example  
 "expire": 1724184622
 
-And do not forget to paste in secret-field below a secret word: secpass
+And obligatory paste in secret-field below a secret word: secpass
 
-Then your token is ready. Copy it and paste in a header of any request.
-It should look like in a header:
-Authorization: some_token
-
+Then your token is ready. Copy it and paste in an Authorization of any request,
+choose Auth Type - Bearer token.
 Then send requests. First it is better to send post request to create first user.
 
+Create request
 POST localhost:3000/api/v1/add-user
 body {
 "name": "Anton",
 "email": "anton@gmail.com",
 "phone": "+380934463331"
 }
-headers
-Authorization: some_token
+Authorization: Bearer your_token
 
-And get-request.
-
+Get request
 GET localhost:3000/api/v1/get-user/:id
-headers
-Authorization: some_token
+Authorization: Bearer your_token
 
 ## License
 
