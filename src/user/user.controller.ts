@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateUserDto } from './dtos/create.user.dto';
 
 @Controller('api/v1')
 export class UserController {
@@ -8,8 +9,8 @@ export class UserController {
 
   @Post('add-user')
   @UseGuards(JwtAuthGuard)
-  createUser(@Body() body: { name: string; email: string; phone: string }) {
-    return this.userService.createUser(body.name, body.email, body.phone);
+  createUser(@Body() dto: CreateUserDto) {
+    return this.userService.createUser(dto);
   }
 
   @Get('get-user/:id')
