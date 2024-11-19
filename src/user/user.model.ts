@@ -1,14 +1,27 @@
 import { IUser } from 'libs/interfaces/src';
-import { Column, Model, Table } from 'sequelize-typescript';
+import {
+  AutoIncrement,
+  Column,
+  HasMany,
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
+import { ShoppingList } from 'src/shopping-list/shopping-list.model';
 
 @Table
 export class User extends Model<User> implements IUser {
+  @PrimaryKey
+  @AutoIncrement
+  @Column
+  id: number;
+
   @Column
   name: string;
 
   @Column
   email: string;
 
-  @Column
-  phone: string;
+  @HasMany(() => ShoppingList)
+  shoppingLists: ShoppingList[];
 }

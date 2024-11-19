@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UserModule } from './user/user.module';
+import { ShoppingListModule } from './shopping-list/shopping-list.module';
+import { ShoppingListItemModule } from './shopping-list-item/shopping-list-item.module';
+import { ItemModule } from './item/item.module';
 
 @Module({
   imports: [
@@ -16,6 +19,9 @@ import { UserModule } from './user/user.module';
       logging: false,
     }),
     UserModule,
+    ShoppingListModule,
+    ShoppingListItemModule,
+    ItemModule,
   ],
 })
 export class AppModule {}
