@@ -1,13 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { User } from './user.model';
 import { CreateUserDto } from './dtos/create.user.dto';
 import { UserRepository } from './user.repository';
 import { UserEntity } from './user.entity';
-import { Item } from 'src/item/item.model';
+import { UserPickedUpItemDto } from './dtos/user.pickedup.item.dto';
+import * as jwt from 'jsonwebtoken';
+import { ShoppingListItem } from 'src/shopping-list-item/shopping-list-item.model';
+import { ShoppingListRepository } from 'src/shopping-list/shopping-list.repository';
+const secret = 'secpass';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  private listCount = 0;
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly shoppingListRepository: ShoppingListRepository,
+  ) {}
 
   async createUser({ name, email }: CreateUserDto): Promise<User> {
     const newUser = <UserEntity>{ name, email };
@@ -20,8 +33,65 @@ export class UserService {
   }
 
   async getAllUsers(): Promise<User[]> {
-    await Item.create({ name: 'Tomato', price: 5.0 });
-    await Item.create({ name: 'Salad', price: 2.5 });
     return this.userRepository.getAllUsers();
+  }
+
+  async pickUpItem(token: string, dto: UserPickedUpItemDto[]): Promise<any> {
+    const user = await this.verifyUser(token);
+
+    const shoppingList = await this.shoppingListRepository.createShoppingList(
+      user.id,
+    );
+
+    for (let i = 0; i < dto.length; i++) {
+      await ShoppingListItem.create({
+        shoppingListId: shoppingList.id,
+        itemId: dto[i].itemId,
+        quantity: dto[i].quantity,
+      });
+    }
+
+    return this.shoppingListRepository.getShoppingList(shoppingList.id, null, {
+      model: ShoppingListItem,
+    });
+  }
+
+  async deleteList(token: string, listId: number) {
+    const user = await this.verifyUser(token);
+
+    const shoppingList = await this.shoppingListRepository.getShoppingList(
+      listId,
+      user.id,
+    );
+
+    if (!shoppingList) {
+      throw new NotFoundException(
+        'Shopping list not found or does not belong to user.',
+      );
+    }
+
+    const deletedCount =
+      await this.shoppingListRepository.removeShoppingList(listId);
+    if (deletedCount === 0) {
+      throw new InternalServerErrorException(
+        'Failed to delete the shopping list.',
+      );
+    }
+
+    return shoppingList;
+  }
+
+  private async verifyUser(token: string): Promise<User> {
+    try {
+      const userId = (jwt.verify(token.split(' ')[1], secret) as any).user;
+      const user = await this.userRepository.getUserById(userId);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
   }
 }

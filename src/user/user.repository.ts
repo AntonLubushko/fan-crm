@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
-
 import { UserEntity } from './user.entity';
+import { UserPickedUpItemDto } from './dtos/user.pickedup.item.dto';
 
 @Injectable()
 export class UserRepository {
@@ -19,5 +19,9 @@ export class UserRepository {
 
   async getAllUsers(): Promise<User[]> {
     return this.userModel.findAll();
+  }
+
+  async pickUpItem(userId: number, dto: UserPickedUpItemDto[]): Promise<any> {
+    return dto;
   }
 }

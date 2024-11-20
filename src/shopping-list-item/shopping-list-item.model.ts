@@ -25,7 +25,7 @@ export class ShoppingListItem
   @Column
   shoppingListId: number;
 
-  @BelongsTo(() => ShoppingList)
+  @BelongsTo(() => ShoppingList, { onDelete: 'CASCADE' })
   shoppingList: ShoppingList;
 
   @ForeignKey(() => Item)
