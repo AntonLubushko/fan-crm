@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Headers,
   Param,
   ParseIntPipe,
@@ -15,6 +16,18 @@ import { JwtUserGuard } from 'src/auth/jwt-user-auth.guard';
 @Controller('api/v1')
 export class UserShoppingController {
   constructor(private userService: UserService) {}
+
+  @Get('show-lists')
+  @UseGuards(JwtUserGuard)
+  getLists(@Headers('authorization') token: string) {
+    return this.userService.getUserLists(token);
+  }
+
+  @Get('show-pickedup-items')
+  @UseGuards(JwtUserGuard)
+  getPickedUpItems(@Headers('authorization') token: string) {
+    return this.userService.getUserPickedUpItems(token);
+  }
 
   @Post('pickup-items')
   @UseGuards(JwtUserGuard)

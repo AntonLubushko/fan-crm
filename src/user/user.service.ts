@@ -12,6 +12,7 @@ import { UserPickedUpItemDto } from './dtos/user.pickedup.item.dto';
 import * as jwt from 'jsonwebtoken';
 import { ShoppingListItem } from 'src/shopping-list-item/shopping-list-item.model';
 import { ShoppingListRepository } from 'src/shopping-list/shopping-list.repository';
+import { ShoppingListItemsRepository } from 'src/shopping-list-item/shopping-list-item.repository';
 const secret = 'secpass';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly shoppingListRepository: ShoppingListRepository,
+    private readonly shoppingListItemsRepository: ShoppingListItemsRepository,
   ) {}
 
   async createUser({ name, email }: CreateUserDto): Promise<User> {
@@ -34,6 +36,22 @@ export class UserService {
 
   async getAllUsers(): Promise<User[]> {
     return this.userRepository.getAllUsers();
+  }
+
+  async getUserLists(token: string) {
+    const user = await this.verifyUser(token);
+
+    const userShoppingLists =
+      await this.shoppingListRepository.getShoppingLists(null, user.id);
+    return userShoppingLists;
+  }
+
+  async getUserPickedUpItems(token: string) {
+    const user = await this.verifyUser(token);
+
+    const userPickedUpItems =
+      await this.shoppingListItemsRepository.getShoppingListItems(user.id);
+    return userPickedUpItems;
   }
 
   async pickUpItem(token: string, dto: UserPickedUpItemDto[]): Promise<any> {

@@ -12,7 +12,7 @@ export class ShoppingListRepository {
   ) {}
 
   async getShoppingList(
-    id: number,
+    id?: number,
     userId?: number,
     options = {},
   ): Promise<ShoppingList> {
@@ -22,24 +22,40 @@ export class ShoppingListRepository {
       options,
     );
 
-    const list = await ShoppingList.findOne(conditions);
+    const list = await this.shoppingListModel.findOne(conditions);
+    return list || null;
+  }
+
+  async getShoppingLists(
+    id?: number,
+    userId?: number,
+    options = {},
+  ): Promise<ShoppingList[]> {
+    const conditions: ConditionsType = this.composeConditions(
+      id,
+      userId,
+      options,
+    );
+
+    const list = await this.shoppingListModel.findAll(conditions);
     return list || null;
   }
 
   async createShoppingList(userId): Promise<ShoppingList> {
-    return await ShoppingList.create({
-      name: 'Shopping_List_' + (Number(await ShoppingList.max('id')) + 1),
+    return await this.shoppingListModel.create({
+      name:
+        'Shopping_List_' + (Number(await this.shoppingListModel.max('id')) + 1),
       userId: userId,
     });
   }
 
   async removeShoppingList(id: number, userId?: number): Promise<number> {
     const conditions: ConditionsType = this.composeConditions(id, userId);
-    return await ShoppingList.destroy(conditions);
+    return await this.shoppingListModel.destroy(conditions);
   }
 
   private composeConditions(
-    listId: number,
+    listId?: number,
     userId?: number,
     options = {},
   ): ConditionsType {
