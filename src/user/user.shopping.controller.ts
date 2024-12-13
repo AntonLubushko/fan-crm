@@ -9,28 +9,28 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from '../user.service';
-import { UserPickedUpItemDto } from '../dtos/user.pickedup.item.dto';
-import { JwtUserGuard } from 'src/auth/jwt-user-auth.guard';
+import { UserService } from './user.service';
+import { UserPickedUpItemDto } from './dtos/user.pickedup.item.dto';
+import { JwtUserAuthGuard } from 'src/auth/jwt-user-auth.guard';
 
-@Controller('api/v1')
+@Controller('api/user')
 export class UserShoppingController {
   constructor(private userService: UserService) {}
 
   @Get('show-lists')
-  @UseGuards(JwtUserGuard)
+  @UseGuards(JwtUserAuthGuard)
   getLists(@Headers('authorization') token: string) {
     return this.userService.getUserLists(token);
   }
 
   @Get('show-pickedup-items')
-  @UseGuards(JwtUserGuard)
+  @UseGuards(JwtUserAuthGuard)
   getPickedUpItems(@Headers('authorization') token: string) {
     return this.userService.getUserPickedUpItems(token);
   }
 
   @Post('pickup-items')
-  @UseGuards(JwtUserGuard)
+  @UseGuards(JwtUserAuthGuard)
   pickupItems(
     @Headers('authorization') token: string,
     @Body() dto: UserPickedUpItemDto[],
@@ -39,7 +39,7 @@ export class UserShoppingController {
   }
 
   @Delete('delete-list/:id')
-  @UseGuards(JwtUserGuard)
+  @UseGuards(JwtUserAuthGuard)
   deleteList(
     @Headers('authorization') token: string,
     @Param('id', ParseIntPipe) listId: number,
