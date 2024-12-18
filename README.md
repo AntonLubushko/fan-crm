@@ -1,57 +1,190 @@
+# API Documentation
+
 ## Description
 
-Move docker-compose.yml to another directroy and in that directory apply:
+This application allows interactions with two roles: **admin** and **user**.
+
+- **Admin Role**:
+
+  - Create multiple users.
+  - Retrieve a list of all users in the system.
+
+- **User Role**:
+
+  - Add items to a list (basket).
+  - Maintain multiple lists (baskets) with various items.
+  - View their lists or picked items.
+  - Delete any list (basket) along with its items.
+
+## Database Installation
+
+### Local MySQL Installation
+
+If MySQL is installed on your local machine, you can configure the database using credentials of your choice.
+
+### Docker Installation
+
+If MySQL is not installed locally, you can use a Docker image:
+
+1. Move the `docker-compose.yml` file to the desired directory.
+2. Fill in the required fields in the `docker-compose.yml` file.
+3. Run the following command in the directory:
 
 ```bash
 $ docker-compose up -d
 ```
 
-it will run mysql database with proper credentials.
+This will start a MySQL database with the specified credentials.
 
-Then go to the root of the project and type:
+## Pre-Populating Items
 
-## Project setup
+Before using the application, populate the `Items` table with sample records. Each record should include:
+
+- **id**: `number`
+- **name**: `string`
+- **price**: `number`
+
+Add a few sample items to the table.
+
+## Setting Up the .env File
+
+Rename `.env.example` into `.env`.
+The `.env` file contains the database and application credentials. Ensure the following:
+
+1. Database fields in the `.env` file match the credentials used for the MySQL database.
+2. Other required fields, such as token signing secrets, are properly configured.
+
+## Project Setup
+
+1. Navigate to the project root directory.
+2. Install dependencies:
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+## Compile and Run the Project
 
 ```bash
-# development
+# For development mode
 $ npm run start
 
-# watch mode
+# For watch mode
 $ npm run start:dev
-
 ```
 
-Then go to jwt.io and compose a token. Make sure, that in a payload
-you paste an "expire" field with date in seconds, that greater, than
-current date.
-Example  
-"expire": 1724184622
+## Token Composition
 
-And obligatory paste in secret-field below a secret word: secpass
+This application uses **JWT tokens** for authorization with two roles:
 
-Then your token is ready. Copy it and paste in an Authorization of any request,
-choose Auth Type - Bearer token.
-Then send requests. First it is better to send post request to create first user.
+- **Admin Role**
+- **User Role**
 
-Create request
-POST localhost:3000/api/v1/add-user
-body {
-"name": "Anton",
-"email": "anton@gmail.com",
-"phone": "+380934463331"
+Each role has specific token requirements for accessing endpoints.
+
+### Admin Token
+
+**Payload fields**:
+
+- `role`: `[admin_role_name]`
+- `expire`: `[time_in_seconds]` (must be greater than the current time in seconds)
+
+The token must be signed using the `ADMIN_SECRET` from the `.env` file.
+
+### User Token
+
+**Payload fields**:
+
+- `role`: `[user_role_name]`
+- `expire`: `[time_in_seconds]` (must be greater than the current time in seconds)
+- `user`: `[current_user_id]` (type: `number`)
+
+The token must be signed using the `USER_SECRET` from the `.env` file.
+
+You can compose tokens using [jwt.io](https://jwt.io), then copy and use them as Bearer tokens in your requests.
+
+## Application Flow
+
+### 1. Create the First User
+
+Use the admin endpoint `/api/admin/add-user` with an admin token to create the first user.
+
+### 2. Perform User Actions
+
+Use the user's `id` in the user token to perform actions like:
+
+- Adding items to a basket.
+- Viewing lists or picked items.
+- Deleting lists with all items.
+
+## API Endpoints
+
+### Admin Endpoints
+
+#### Create a User
+
+**POST** `/api/admin/add-user`
+
+**Body**:
+
+```json
+{
+  "name": "SomeName",
+  "email": "example@post.com",
+  "phone": "+380934444444"
 }
-Authorization: Bearer your_token
+```
 
-Get request
-GET localhost:3000/api/v1/get-user/:id
-Authorization: Bearer your_token
+**Authorization**: Bearer `[admin_token]`
+
+#### Get User by ID
+
+**GET** `/api/admin/get-user/:user_id`
+
+**Authorization**: Bearer `[admin_token]`
+
+#### Get All Users
+
+**GET** `/api/admin/get-users`
+
+**Authorization**: Bearer `[admin_token]`
+
+### User Endpoints
+
+#### Add Items to a Basket
+
+**POST** `/api/user/pickup-items`
+
+**Body**:
+
+```json
+[
+  {"itemId": [number], "quantity": [number]},
+  {"itemId": [number], "quantity": [number]}
+  ...
+]
+```
+
+**Authorization**: Bearer `[user_token]`
+
+#### View All User Lists
+
+**GET** `/api/user/show-lists`
+
+**Authorization**: Bearer `[user_token]`
+
+#### View All Picked Items
+
+**GET** `/api/user/show-pickedup-items`
+
+**Authorization**: Bearer `[user_token]`
+
+#### Delete a List
+
+**DELETE** `/api/user/delete-list/:list_id`
+
+**Authorization**: Bearer `[user_token]`
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project uses the [MIT License](https://github.com/nestjs/nest/blob/master/LICENSE).
