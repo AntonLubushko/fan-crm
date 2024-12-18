@@ -36,6 +36,12 @@ $ docker-compose up -d
 
 This will start a MySQL database with the specified credentials.
 
+## Database Schema
+
+Below is the database schema used in the application:
+
+![Database Schema](/images/db-schema.png)
+
 ## Pre-Populating Items
 
 Before using the application, populate the `Items` table with sample records. Each record should include:
