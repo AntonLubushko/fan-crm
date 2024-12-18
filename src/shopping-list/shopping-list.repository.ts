@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ShoppingList } from './shopping-list.model';
-type whereClauseType = { id?: number; userId?: number };
-type ConditionsType = { where?: whereClauseType; include?: any[] };
+import { ShoppingListEntity } from './shopping-list.entity';
+import { Options, WhereClause, Conditions } from 'libs/types/db.list.params';
+import { ShoppingListItem } from 'src/shopping-list-item/shopping-list-item.model';
 
 @Injectable()
 export class ShoppingListRepository {
@@ -12,57 +13,63 @@ export class ShoppingListRepository {
   ) {}
 
   async getShoppingList(
-    id?: number,
+    listId?: number,
     userId?: number,
-    options = {},
-  ): Promise<ShoppingList> {
-    const conditions: ConditionsType = this.composeConditions(
-      id,
-      userId,
-      options,
-    );
+  ): Promise<ShoppingListEntity> {
+    const options: Options<typeof ShoppingListItem> = {
+      model: ShoppingListItem,
+    };
+    const conditions: Conditions<typeof ShoppingListItem> =
+      this.composeConditions<typeof ShoppingListItem>(listId, userId, options);
 
-    const list = await this.shoppingListModel.findOne(conditions);
-    return list || null;
+    const listModel = await this.shoppingListModel.findOne(conditions);
+
+    if (!listModel) {
+      return null;
+    }
+
+    const listEntity = new ShoppingListEntity(listModel);
+
+    return listEntity;
   }
 
   async getShoppingLists(
-    id?: number,
+    listId?: number,
     userId?: number,
-    options = {},
-  ): Promise<ShoppingList[]> {
-    const conditions: ConditionsType = this.composeConditions(
-      id,
-      userId,
-      options,
-    );
-
-    const list = await this.shoppingListModel.findAll(conditions);
-    return list || null;
+  ): Promise<ShoppingListEntity[]> {
+    const conditions: Conditions = this.composeConditions(listId, userId);
+    const listsModels = await this.shoppingListModel.findAll(conditions);
+    if (!listsModels) {
+      return [];
+    }
+    return listsModels.map((listModel) => new ShoppingListEntity(listModel));
   }
 
-  async createShoppingList(userId): Promise<ShoppingList> {
-    return await this.shoppingListModel.create({
+  async createShoppingList(userId): Promise<ShoppingListEntity> {
+    const listModel = await this.shoppingListModel.create({
       name:
         'Shopping_List_' + (Number(await this.shoppingListModel.max('id')) + 1),
       userId: userId,
     });
+
+    return new ShoppingListEntity(listModel);
   }
 
-  async removeShoppingList(id: number, userId?: number): Promise<number> {
-    const conditions: ConditionsType = this.composeConditions(id, userId);
+  async removeShoppingList(listId: number, userId?: number): Promise<number> {
+    const conditions: Conditions = this.composeConditions(listId, userId);
     return await this.shoppingListModel.destroy(conditions);
   }
 
-  private composeConditions(
+  private composeConditions<T>(
     listId?: number,
     userId?: number,
-    options = {},
-  ): ConditionsType {
-    const whereClause: whereClauseType = {
+    options: Options<T> = {},
+  ): Conditions<T> {
+    const whereClause: WhereClause = {
       ...(listId != null && { id: listId }),
       ...(userId != null && { userId }),
     };
+
     return {
       where: Object.keys(whereClause).length ? whereClause : undefined,
       include: Object.keys(options).length ? [options] : undefined,

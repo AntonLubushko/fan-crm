@@ -4,12 +4,12 @@ import { User } from '../../user/user.model';
 
 import { AdminUserController } from './admin.user.controller';
 import { AdminUserService } from './admin.user.service';
-import { AdminUserRepository } from './admin.user.repository';
+import { UserRepository } from 'src/user/user.repository';
 
 @Module({
   imports: [SequelizeModule.forFeature([User])],
   controllers: [AdminUserController],
-  providers: [AdminUserService, AdminUserRepository],
+  providers: [AdminUserService, UserRepository],
   exports: [],
 })
 export class AdminUserModule {}
