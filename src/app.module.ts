@@ -4,7 +4,7 @@ import { UserModule } from './user/user.module';
 import { ShoppingListModule } from './shopping-list/shopping-list.module';
 import { ShoppingListItemModule } from './shopping-list-item/shopping-list-item.module';
 import { ItemModule } from './item/item.module';
-import { AdminUserModule } from './admin/user/admin.user.module';
+import { AdminModule } from './admin/admin.module';
 import * as dotenv from 'dotenv';
 import { Dialect } from 'sequelize';
 dotenv.config();
@@ -22,7 +22,7 @@ dotenv.config();
       synchronize: true,
       logging: false,
     }),
-    AdminUserModule,
+    AdminModule,
     UserModule,
     ShoppingListModule,
     ShoppingListItemModule,

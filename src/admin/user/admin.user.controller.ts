@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AdminUserService } from './admin.user.service';
 import { JwtAdminAuthGuard } from '../../auth/jwt-admin-auth.guard';
-import { CreateUserDto } from './dtos/create.user.dto';
+import { CreateUserDto } from '../dtos/create.user.dto';
 
 @Controller('api/admin')
 export class AdminUserController {
