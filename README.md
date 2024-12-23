@@ -7,7 +7,9 @@ This application allows interactions with two roles: **admin** and **user**.
 - **Admin Role**:
 
   - Create multiple users.
+  - Create scope of items (goods) for user to buy.
   - Retrieve a list of all users in the system.
+  - Retrieve a list of all items in the system.
 
 - **User Role**:
 
@@ -41,16 +43,6 @@ This will start a MySQL database with the specified credentials.
 Below is the database schema used in the application:
 
 ![Database Schema](/images/db-schema.png)
-
-## Pre-Populating Items
-
-Before using the application, populate the `Items` table with sample records. Each record should include:
-
-- **id**: `number`
-- **name**: `string`
-- **price**: `number`
-
-Add a few sample items to the table.
 
 ## Setting Up the .env File
 
@@ -111,11 +103,16 @@ You can compose tokens using [jwt.io](https://jwt.io), then copy and use them as
 
 ## Application Flow
 
-### 1. Create the First User
+### 1. Create some Items
+
+Use the admin endpoint `/api/admin/add-items` with an admin token to create the list of items.
+So these goods user can add to a user's basket later.
+
+### 2. Create the First User
 
 Use the admin endpoint `/api/admin/add-user` with an admin token to create the first user.
 
-### 2. Perform User Actions
+### 3. Perform User Actions
 
 Use the user's `id` in the user token to perform actions like:
 
@@ -127,6 +124,28 @@ Use the user's `id` in the user token to perform actions like:
 
 ### Admin Endpoints
 
+#### Create Items
+
+**POST** `/api/admin/add-items`
+
+**Body**:
+
+```json
+[
+  {
+    "name": [string],
+    "price": [number],
+  },
+  {
+    "name": [string],
+    "price": [number],
+  },
+  ...
+]
+```
+
+**Authorization**: Bearer `[admin_token]`
+
 #### Create a User
 
 **POST** `/api/admin/add-user`
@@ -135,9 +154,9 @@ Use the user's `id` in the user token to perform actions like:
 
 ```json
 {
-  "name": "SomeName",
-  "email": "example@post.com",
-  "phone": "+380934444444"
+  "name": [string],
+  "email": [string],
+  "phone": [string]
 }
 ```
 

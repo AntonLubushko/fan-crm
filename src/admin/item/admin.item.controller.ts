@@ -7,10 +7,10 @@ import { AdminItemService } from './admin.item.service';
 export class AdminItemController {
   constructor(private adminItemService: AdminItemService) {}
 
-  @Post('add-item')
+  @Post('add-items')
   @UseGuards(JwtAdminAuthGuard)
-  createItem(@Body() dto: CreateItemDto) {
-    return this.adminItemService.createItem(dto);
+  createItems(@Body() dto: CreateItemDto[]) {
+    return this.adminItemService.createItems(dto);
   }
 
   @Get('get-items')

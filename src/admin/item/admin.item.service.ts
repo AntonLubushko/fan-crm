@@ -7,10 +7,15 @@ import { ItemRepository } from 'src/item/item.repository';
 export class AdminItemService {
   constructor(private readonly itemRepository: ItemRepository) {}
 
-  async createItem({ name, price }: CreateItemDto): Promise<ItemEntity> {
-    const newItem = <ItemEntity>{ name, price };
-    const item = await this.itemRepository.createItem(newItem);
-    return item;
+  async createItems(items: CreateItemDto[]): Promise<ItemEntity[]> {
+    let createdItems: ItemEntity[] = [];
+    for (let i = 0; i < items.length; i++) {
+      createdItems.push(
+        await this.itemRepository.createItem(<ItemEntity>items[i]),
+      );
+    }
+
+    return createdItems;
   }
 
   async getAllItems() {
